@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <title>Details</title>
+</head>
+<body>
+    <h1>Projet Terminologie</h1>
+    <hr>
+    <h2>Details</h2>
+    <hr><br>
+
+    <div class="search-container">
+        <!-- <label for="englishTermLabel">Enter an English term:</label> -->
+        <input type="text" id="englishTerm" class="larger-input" placeholder="enter eng/french term...">
+        <label>
+            <input type="radio" name="translationDirection" value="en-to-fr" checked> EN-FR
+        </label>
+        <label>
+            <input type="radio" name="translationDirection" value="fr-to-en"> FR-EN
+        </label>
+        <button id="searchBtn">Search</button>
+    </div>
+    <h3 id="detailResult"></h3>
+    
+    <script src="main.js"></script>
+    <script src="detail.js"></script>
+</body>
+</html>

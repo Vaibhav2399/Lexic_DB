@@ -1,0 +1,93 @@
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.myheader header {
+  text-align: center;
+  font-weight: bold;
+  font-size: 45px;
+  color: #ffd700; /* Change the color here */
+}
+
+.sidebar-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 31px; /* Adjust the width of the line */
+  background-color: #800020; /* Adjust the color of the line */
+}
+
+.aboutwebsite p {
+  text-align: center;
+  font-weight: bold;
+}
+.search-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-bar {
+  display: flex;
+  width: 300px;
+  align-items: center;
+  padding: 10px;
+  border: none;
+  border-radius: 25px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Ensure the search bar maintains a round shape */
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 8px;
+  border-radius: 25px; /* Match the border-radius of the search bar */
+}
+
+.search-icon {
+  margin-right: 10px;
+  font-size: 20px;
+  color: #555;
+}
+
+.index-button {
+  padding: 15px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: 1px solid #007bff;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    150px
+  ); /* 3 columns with a width of 100px each */
+  gap: 10px; /* Adjust the gap between grid items as needed */
+}
+
+.grid-item {
+  border: 1px solid #333333;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #333;
+  padding: 20px;
+  text-align: center;
+  background-color: #f0f0f0; /* Background color for grid items */
+}
+
+.last-item {
+  grid-column: 3/2; /* Make the last items start at column 1 and span 2 columns */
+}
