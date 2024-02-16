@@ -1,0 +1,33 @@
+{
+  "name": "projet_termi",
+  "version": "1.0.0",
+  "description": "Project Terminologies",
+  "main": "main.html",
+  "type": "module",
+  "scripts": {
+    "dev": "npx nodemon app.js",
+    "test": "test 123"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vaibhav2399/Project_Terminologie.git"
+  },
+  "keywords": [
+    "javascript"
+  ],
+  "author": "vp",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vaibhav2399/Project_Terminologie/issues"
+  },
+  "homepage": "https://github.com/Vaibhav2399/Project_Terminologie#readme",
+  "dependencies": {
+    "dotenv": "^16.4.4",
+    "express": "^5.0.0-beta.1",
+    "mysql2": "^3.9.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
