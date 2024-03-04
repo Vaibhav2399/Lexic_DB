@@ -1,1 +1,1 @@
-# Project_Terminologie
+# Lexic DB and Backend logic
