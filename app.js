@@ -12,6 +12,7 @@ app.use((req, res, next) => {
   
 app.get("/terms", async (req,res) => {
     const terms = await getResults()
+    // console.log("Terms:", terms);
     res.send(terms)
 })
 

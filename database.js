@@ -10,18 +10,66 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise()
 
-export async function getResults(){
-    const [rows] = await pool.query("SELECT * FROM sciences_cognitives")
-    return rows
+export async function getResults() {
+    try {
+        const [tableRows] = await pool.query("SHOW TABLES");
+        const tables = tableRows.map(row => Object.values(row)[0]);
+
+        const allRows = await Promise.all(
+            tables.map(async tableName => {
+                const [rows] = await pool.query(`SELECT * FROM ${tableName}`);
+                return rows;
+            })
+        );
+
+        const combinedRows = allRows.flat();
+
+        const words = combinedRows.map(item => item.VEDETTE_FRANÇAISE);
+        const sortedWords = words.sort((a, b) => a.localeCompare(b));
+        const sortedRows = sortedWords.map(word => combinedRows.find(item => item.VEDETTE_FRANÇAISE === word));
+
+        return sortedRows;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        throw error;
+    }
 }
 
-export async function getResult(term){
-    const [rows] = await pool.query(`
-    SELECT * 
-    FROM sciences_cognitives
-    WHERE \`VEDETTE FRANÇAISE\` LIKE ?`, [term]);
-    return rows[0];
-}
+// export async function getResults(tableName) {
+//     try {
+//         const [rows] = await pool.query(`SELECT * FROM ${tableName}`);
+//         const words = rows.map(item => item.VEDETTE_FRANÇAISE);
+//         const sortedWords = words.sort((a, b) => a.localeCompare(b));
+//         const sortedRows = sortedWords.map(word => rows.find(item => item.VEDETTE_FRANÇAISE === word));
+//         return sortedRows;
+//     } catch (error) {
+//         console.error(`Error fetching data for table ${tableName}:`, error);
+//         throw error;
+//     }
+// }
 
-// const notes = await getResult(`%biais de statu quo%`);
-// console.log(notes);
+
+
+export async function getResult(term) {
+    try {
+        const [tableRows] = await pool.query("SHOW TABLES");
+        const tables = tableRows.map(row => Object.values(row)[0]);
+
+        const results = await Promise.all(
+            tables.map(async tableName => {
+                const [rows] = await pool.query(`
+                    SELECT * 
+                    FROM ${tableName}
+                    WHERE \`VEDETTE_FRANÇAISE\` LIKE ?`, [term]);
+                return rows[0];
+            })
+        );
+
+        const filteredResults = results.filter(result => result);
+        // console.log("HIio : ", filteredResults[0]);
+        return filteredResults[0];
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        throw error;
+    }
+}
