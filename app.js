@@ -1,6 +1,6 @@
 import express from 'express'
 import path from 'path'
-import { getResult, getResults } from './database.js';
+import { getResult, getResults, getRelatedWords } from './database.js';
 
 const app = express();
 app.use((req, res, next) => {
@@ -20,6 +20,12 @@ app.get("/terms/:term", async (req,res) => {
     const term = req.params.term
     const result = await getResult(term) 
     res.send(result)
+})
+
+app.get("/relatedterms/:term", async (req,res) => {
+  const term = req.params.term
+  const result = await getRelatedWords(term) 
+  res.send(result)
 })
 
 // app.use(express.static(path.join(__dirname, '/Lexic')));

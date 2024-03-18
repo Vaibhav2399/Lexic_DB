@@ -73,3 +73,27 @@ export async function getResult(term) {
         throw error;
     }
 }
+
+export async function getRelatedWords(inputValue) {
+    try {
+      const [tableRows] = await pool.query("SHOW TABLES");
+      const tables = tableRows.map(row => Object.values(row)[0]);
+      const results = await Promise.all(
+        tables.map(async tableName => {
+          const [rows] = await pool.query(`
+            SELECT \`VEDETTE_FRANÇAISE\`
+            FROM ${tableName}
+            WHERE \`VEDETTE_FRANÇAISE\` LIKE ?`, [`%${inputValue}%`]);
+          return rows.map(row => row.VEDETTE_FRANÇAISE);
+        })
+      );
+  
+      const relatedWords = results.flat().filter(word => word);
+      const uniqueRelatedWords = [...new Set(relatedWords)];
+      return uniqueRelatedWords;
+    } catch (error) {
+      console.error("Error fetching related words:", error);
+      throw error;
+    }
+  }
+  
