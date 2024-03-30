@@ -60,7 +60,7 @@ export async function getResult(term) {
                 const [rows] = await pool.query(`
                     SELECT * 
                     FROM ${tableName}
-                    WHERE \`VEDETTE_FRANÇAISE\` LIKE ?`, [term]);
+                    WHERE \`VEDETTE_FRANÇAISE\` LIKE ? OR \`VEDETTE_ANGLAISE\` LIKE ?`, [term, term]);
                 return rows[0];
             })
         );
@@ -76,24 +76,33 @@ export async function getResult(term) {
 
 export async function getRelatedWords(inputValue) {
     try {
-      const [tableRows] = await pool.query("SHOW TABLES");
-      const tables = tableRows.map(row => Object.values(row)[0]);
-      const results = await Promise.all(
-        tables.map(async tableName => {
-          const [rows] = await pool.query(`
-            SELECT \`VEDETTE_FRANÇAISE\`
-            FROM ${tableName}
-            WHERE \`VEDETTE_FRANÇAISE\` LIKE ?`, [`%${inputValue}%`]);
-          return rows.map(row => row.VEDETTE_FRANÇAISE);
-        })
-      );
-  
-      const relatedWords = results.flat().filter(word => word);
-      const uniqueRelatedWords = [...new Set(relatedWords)];
-      return uniqueRelatedWords;
+        const [tableRows] = await pool.query("SHOW TABLES");
+        const tables = tableRows.map(row => Object.values(row)[0]);
+        const results = await Promise.all(
+            tables.map(async tableName => {
+                const [frenchRows] = await pool.query(`
+                    SELECT \`VEDETTE_FRANÇAISE\`
+                    FROM ${tableName}
+                    WHERE \`VEDETTE_FRANÇAISE\` LIKE ?`, [`%${inputValue}%`]);
+                const [englishRows] = await pool.query(`
+                    SELECT \`VEDETTE_ANGLAISE\`
+                    FROM ${tableName}
+                    WHERE \`VEDETTE_ANGLAISE\` LIKE ?`, [`%${inputValue}%`]);
+
+                const frenchWords = frenchRows.map(row => row.VEDETTE_FRANÇAISE);
+                const englishWords = englishRows.map(row => row.VEDETTE_ANGLAISE);
+                return [...frenchWords, ...englishWords];
+            })
+        );
+
+        const relatedWords = results.flat().filter(word => word);
+        const uniqueRelatedWords = [...new Set(relatedWords)];
+        return uniqueRelatedWords;
     } catch (error) {
-      console.error("Error fetching related words:", error);
-      throw error;
+        console.error("Error fetching related words:", error);
+        throw error;
     }
-  }
+}
+
+
   
