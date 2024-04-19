@@ -1,7 +1,7 @@
 import mysql from 'mysql2';
-
 import dotenv from 'dotenv'
 dotenv.config()
+import { getTableNames, getRowsFromTables, searchRowsInTables, searchColumnInTables } from './crudUtils.js';
 
 const pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
@@ -10,19 +10,14 @@ const pool = mysql.createPool({
     database: process.env.MYSQL_DATABASE
 }).promise()
 
-export async function getResults() {
+
+// Returns an array of all the rows sorted by French Terms.
+export async function getAllWords() {
     try {
-        const [tableRows] = await pool.query("SHOW TABLES");
-        const tables = tableRows.map(row => Object.values(row)[0]);
+        const tables = await getTableNames(pool);
+        const rows = await getRowsFromTables(pool, tables);
 
-        const allRows = await Promise.all(
-            tables.map(async tableName => {
-                const [rows] = await pool.query(`SELECT * FROM ${tableName}`);
-                return rows;
-            })
-        );
-
-        const combinedRows = allRows.flat();
+        const combinedRows = rows.flat();
 
         const words = combinedRows.map(item => item.VEDETTE_FRANÇAISE);
         const sortedWords = words.sort((a, b) => a.localeCompare(b));
@@ -30,64 +25,29 @@ export async function getResults() {
 
         return sortedRows;
     } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching all the words:", error);
         throw error;
     }
 }
 
-// export async function getResults(tableName) {
-//     try {
-//         const [rows] = await pool.query(`SELECT * FROM ${tableName}`);
-//         const words = rows.map(item => item.VEDETTE_FRANÇAISE);
-//         const sortedWords = words.sort((a, b) => a.localeCompare(b));
-//         const sortedRows = sortedWords.map(word => rows.find(item => item.VEDETTE_FRANÇAISE === word));
-//         return sortedRows;
-//     } catch (error) {
-//         console.error(`Error fetching data for table ${tableName}:`, error);
-//         throw error;
-//     }
-// }
-
-
-
-export async function getResult(term) {
+export async function getTermDetails(term) {
     try {
-        const [tableRows] = await pool.query("SHOW TABLES");
-        const tables = tableRows.map(row => Object.values(row)[0]);
-
-        const results = await Promise.all(
-            tables.map(async tableName => {
-                const [rows] = await pool.query(`
-                    SELECT * 
-                    FROM ${tableName}
-                    WHERE \`VEDETTE_FRANÇAISE\` LIKE ? OR \`VEDETTE_ANGLAISE\` LIKE ?`, [term, term]);
-                return rows[0];
-            })
-        );
-
-        const filteredResults = results.filter(result => result);
-        // console.log("HIio : ", filteredResults[0]);
-        return filteredResults[0];
+        const tables = await getTableNames(pool);
+        const results = await searchRowsInTables(pool, tables, term);
+        return results[0];
     } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching term details:", error);
         throw error;
     }
 }
 
-export async function getRelatedWords(inputValue) {
+export async function getRelatedTerms(term) {
     try {
-        const [tableRows] = await pool.query("SHOW TABLES");
-        const tables = tableRows.map(row => Object.values(row)[0]);
+        const tables = await getTableNames(pool);
         const results = await Promise.all(
-            tables.map(async tableName => {
-                const [frenchRows] = await pool.query(`
-                    SELECT \`VEDETTE_FRANÇAISE\`
-                    FROM ${tableName}
-                    WHERE \`VEDETTE_FRANÇAISE\` LIKE ?`, [`%${inputValue}%`]);
-                const [englishRows] = await pool.query(`
-                    SELECT \`VEDETTE_ANGLAISE\`
-                    FROM ${tableName}
-                    WHERE \`VEDETTE_ANGLAISE\` LIKE ?`, [`%${inputValue}%`]);
+            tables.map(async () => {
+                const frenchRows = await searchColumnInTables(pool, tables, 'VEDETTE_FRANÇAISE', term);
+                const englishRows = await searchColumnInTables(pool, tables, 'VEDETTE_ANGLAISE', term);
 
                 const frenchWords = frenchRows.map(row => row.VEDETTE_FRANÇAISE);
                 const englishWords = englishRows.map(row => row.VEDETTE_ANGLAISE);
@@ -95,9 +55,8 @@ export async function getRelatedWords(inputValue) {
             })
         );
 
-        const relatedWords = results.flat().filter(word => word);
-        const uniqueRelatedWords = [...new Set(relatedWords)];
-        return uniqueRelatedWords;
+        const relatedWords = new Set(results.flat().filter(word => word));
+        return [...relatedWords];
     } catch (error) {
         console.error("Error fetching related words:", error);
         throw error;
@@ -105,4 +64,4 @@ export async function getRelatedWords(inputValue) {
 }
 
 
-  
+
