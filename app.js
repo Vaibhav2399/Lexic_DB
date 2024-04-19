@@ -1,25 +1,29 @@
 import express from 'express'
-import path from 'path'
-import { getResult, getResults } from './database.js';
+import { getTermDetails, getAllWords, getRelatedTerms } from './database.js';
 
 const app = express();
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Methods', 'GET, POST');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
   });
   
 app.get("/terms", async (req,res) => {
-    const terms = await getResults()
-    // console.log("Terms:", terms);
+    const terms = await getAllWords()
     res.send(terms)
 })
 
 app.get("/terms/:term", async (req,res) => {
     const term = req.params.term
-    const result = await getResult(term) 
+    const result = await getTermDetails(term) 
     res.send(result)
+})
+
+app.get("/relatedterms/:term", async (req,res) => {
+  const term = req.params.term
+  const result = await getRelatedTerms(term) 
+  res.send(result)
 })
 
 // app.use(express.static(path.join(__dirname, '/Lexic')));
